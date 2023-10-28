@@ -7,7 +7,7 @@ This Ansible playbook is designed to provision a freshly installed Ubuntu 22.04 
 - Updates and upgrades existing APT packages.
 - Applies security configurations
 - Installs essential packages like curl, git, wget, and others.
-- Genrates an SSH Key
+- Generates an SSH Key
 - Configures Git with user name and email.
 - Installs Node.js, Yarn, Visual Studio Code, Google Chrome, Docker, AWS CLI, Google Cloud SDK, and others.
 - Installs Oh My Zsh, the Spaceship theme, and Zinit for a better terminal experience.
