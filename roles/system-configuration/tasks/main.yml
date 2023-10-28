@@ -1,0 +1,28 @@
+---
+- name: Update and upgrade APT packages
+  apt:
+    update_cache: yes
+    upgrade: safe
+
+- name: Install essential packages
+  apt:
+    name:
+      - curl
+      - git
+      - wget
+      - gnupg2
+      - apt-transport-https
+      - ca-certificates
+      - software-properties-common
+      - unzip
+      - htop
+      - openssh-server
+
+- name: Generate SSH key for user "{{ local_user }}"
+  openssh_keypair:
+    path: "~/.ssh/id_rsa"
+    type: rsa
+    size: 4096
+    state: present
+    force: no
+  become: false  # Ensure this runs as your user

@@ -1,0 +1,22 @@
+# Temporary Files
+*.retry
+*.tmp
+
+# Sensitive Data
+vars/secret.yml
+*.vault
+
+# Backup Files
+*~
+
+# Compiled Files
+*.pyc
+*.pyo
+
+# System Files
+.DS_Store
+Thumbs.db
+
+# IDE and Editor Directories
+.idea/
+.vscode/

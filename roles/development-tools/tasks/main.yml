@@ -1,0 +1,112 @@
+---
+- name: Node.js
+  block:
+    - name: Add NodeSource GPG key
+      shell: |
+        curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | sudo gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg
+      args:
+        creates: /etc/apt/keyrings/nodesource.gpg
+
+    - name: Add Node.js repository
+      apt_repository:
+        repo: "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_20.x nodistro main"
+        state: present
+
+    - name: Install Node.js
+      apt:
+        name:
+          - nodejs
+        update_cache: yes
+
+- name: Yarn
+  npm:
+    name: yarn
+    global: yes
+
+- name: VSCode
+  block:
+    - name: Add Microsoft GPG key
+      shell: |
+        curl -fsSL https://packages.microsoft.com/keys/microsoft.asc | sudo gpg --dearmor -o /etc/apt/keyrings/microsoft.gpg
+      args:
+        creates: /etc/apt/keyrings/microsoft.gpg
+
+    - name: Add VSCode repository
+      apt_repository:
+        repo: "deb [signed-by=/etc/apt/keyrings/microsoft.gpg] https://packages.microsoft.com/repos/vscode stable main"
+        state: present
+
+    - name: Install VSCode
+      apt:
+        name:
+          - code
+        update_cache: yes
+
+- name: Docker
+  shell: |
+    curl -fsSL https://get.docker.com -o get-docker.sh
+    sh get-docker.sh
+    rm get-docker.sh
+    usermod -aG docker {{ local_user }}
+  args:
+    creates: /usr/bin/docker
+  notify:
+    - Start Docker
+
+- name: Podman
+  block:
+    - name: Add Podman GPG key
+      shell: |
+        curl -fsSL https://download.opensuse.org/repositories/devel:kubic:libcontainers:stable/xUbuntu_{{ lsb_release_number }}/Release.key | sudo gpg --dearmor -o /etc/apt/keyrings/devel_kubic_libcontainers_stable.gpg
+      args:
+        creates: /etc/apt/keyrings/devel_kubic_libcontainers_stable.gpg
+
+    - name: Add Podman repository
+      apt_repository:
+        repo: "deb [arch={{ deb_architecture }} signed-by=/etc/apt/keyrings/devel_kubic_libcontainers_stable.gpg] https://download.opensuse.org/repositories/devel:kubic:libcontainers:stable/xUbuntu_{{ lsb_release_number }}/ /"
+        state: present
+        filename: devel:kubic:libcontainers:stable.list
+        
+    - name: Install Podman
+      apt:
+        name: podman
+        state: present
+        update_cache: yes
+
+- name: Postman
+  block:
+    - name: Download and Install Postman
+      shell: |
+        if [ ! -d /opt/Postman ]
+        then
+            wget -q https://dl.pstmn.io/download/latest/linux64 -O postman.tar.gz
+            tar -xzf postman.tar.gz -C /opt
+            ln -s /opt/Postman/Postman /usr/local/bin/postman
+            rm postman.tar.gz
+        fi
+      args:
+        creates: "/usr/local/bin/postman"
+        
+    - name: Create desktop entry for Postman
+      copy:
+        content: |
+          [Desktop Entry]
+          Name=Postman
+          Exec=/opt/Postman/Postman
+          Icon=/opt/Postman/app/resources/app/assets/icon.png
+          Type=Application
+          Categories=Development;
+        dest: /usr/share/applications/postman.desktop
+
+- name: Configure Git
+  block:
+    - name: Set Git user name
+      git_config:
+        scope: global
+        name: user.name
+        value: "{{ git_username }}"
+    - name: Set Git user email
+      git_config:
+        scope: global
+        name: user.email
+        value: "{{ git_email }}"

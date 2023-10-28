@@ -1,0 +1,54 @@
+---
+- name: Ensure UFW is installed
+  apt:
+    name: ufw
+    state: present
+
+- name: Deny all incoming traffic by default
+  ufw:
+    direction: incoming
+    policy: deny
+
+- name: Allow all outgoing traffic by default
+  ufw:
+    direction: outgoing
+    policy: allow
+
+- name: Deny incoming SSH
+  ufw:
+    rule: deny
+    direction: in
+    port: 22
+    proto: tcp
+
+- name: Enable UFW
+  ufw:
+    state: enabled
+
+- name: Ensure unattended-upgrades is installed
+  apt:
+    name: unattended-upgrades
+    state: present
+
+- name: Enable automatic security updates
+  copy:
+    dest: /etc/apt/apt.conf.d/50unattended-upgrades
+    content: |
+      Unattended-Upgrade::Allowed-Origins {
+          "${distro_id}:${distro_codename}-security";
+      };
+
+- name: Set correct permissions on sensitive files
+  file:
+    path: "{{ item.path }}"
+    mode: "{{ item.mode }}"
+  loop:
+    - path: /etc/passwd
+      mode: '0644'
+    - path: /etc/shadow
+      mode: '0640'
+
+- name: Ensure AppArmor is installed
+  apt:
+    name: apparmor
+    state: present

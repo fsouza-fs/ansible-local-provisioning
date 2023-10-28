@@ -1,0 +1,58 @@
+---
+- name: Setup Oh My Zsh with Spaceship theme
+  block:
+    - name: Install Zsh
+      apt:
+        name: zsh
+        state: present
+      
+    - name: Install Oh My Zsh
+      shell: sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+      args:
+        creates: "/home/{{ local_user }}/.oh-my-zsh"
+      become: false  # Ensure this runs as your user
+      
+    - name: Clone Spaceship theme repository
+      git:
+        repo: https://github.com/spaceship-prompt/spaceship-prompt.git
+        dest: "/home/{{ local_user }}/.oh-my-zsh/custom/themes/spaceship-prompt"
+        depth: 1
+      become: false  # Ensure this runs as your user
+      
+    - name: Symlink spaceship.zsh-theme
+      file:
+        src: "/home/{{ local_user }}/.oh-my-zsh/custom/themes/spaceship-prompt/spaceship.zsh-theme"
+        dest: "/home/{{ local_user }}/.oh-my-zsh/custom/themes/spaceship.zsh-theme"
+        state: link
+      become: false  # Ensure this runs as your user
+      
+    - name: Set Spaceship as the theme in .zshrc
+      lineinfile:
+        path: "/home/{{ local_user }}/.zshrc"
+        regexp: '^ZSH_THEME='
+        line: 'ZSH_THEME="spaceship"'
+        create: yes
+      become: false  # Ensure this runs as your user
+      
+    - name: Change default shell to Zsh for your user
+      user:
+        name: "{{ local_user }}"
+        shell: /usr/bin/zsh
+
+- name: Change default terminal font
+  block:
+    - name: Install Fira Code font
+      apt:
+        name: fonts-firacode
+        state: present
+        
+    - name: Get current GNOME Terminal font
+      shell: gsettings get org.gnome.desktop.interface monospace-font-name
+      register: current_font
+      become: false  # Ensure this runs as your user
+      
+    - name: Set GNOME Terminal font to Fira Code
+      shell: |
+        gsettings set org.gnome.desktop.interface monospace-font-name 'Fira Code Regular 11'
+      when: current_font.stdout != "'Fira Code Regular 11'"
+      become: false # Ensure this runs as your user
