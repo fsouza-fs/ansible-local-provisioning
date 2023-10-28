@@ -105,8 +105,10 @@
         scope: global
         name: user.name
         value: "{{ git_username }}"
+      become: false
     - name: Set Git user email
       git_config:
         scope: global
         name: user.email
         value: "{{ git_email }}"
+      become: false
