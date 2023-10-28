@@ -48,4 +48,4 @@ You can further customize the playbook to better suit your needs by modifying th
 Feel free to fork this repository, make changes, and submit pull requests. Contributions are welcome!
 
 ## License
-This project is licensed under the MIT License - see the LICENSE.md file for details.
+This project is licensed under the MIT License - see the LICENSE file for details.
