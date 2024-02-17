@@ -18,6 +18,11 @@
       - htop
       - openssh-server
 
+- name: Install vlc
+  community.general.snap:
+    name: vlc
+    classic: yes
+
 - name: Generate SSH key for user "{{ local_user }}"
   openssh_keypair:
     path: "~/.ssh/id_rsa"
